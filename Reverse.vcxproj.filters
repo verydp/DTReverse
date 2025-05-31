@@ -15,7 +15,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="02无限循环.cpp">
+    <ClCompile Include="0203.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0204.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0205.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0206.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0226.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0227.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0228.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0302.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

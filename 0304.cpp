@@ -23,14 +23,12 @@ void function3_4_2() {
 	int (*px)[2];
 	px = (int (*)[2])arr;
 
-	printf("%d\n", *(*px)    );
-	/*
-	for (int i = 0;i < 10;i++) {
-		px = px + i;
+	//printf("%d\n", *(*(px+9)+1)    );
 
-		printf("%d\n%d\n", *((*px) + 0));
+	for (int i = 0;i < 10;i++) {
+		//printf("%d\n", i);
+		printf("%d\n%d\n", *(*(px+i)), * (*(px + i) + 1));
 	}
-	*/
 	
 }
 

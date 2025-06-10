@@ -181,6 +181,7 @@
     </ClCompile>
     <ClCompile Include="0310.cpp" />
     <ClCompile Include="0311.cpp" />
+    <ClCompile Include="0312.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -54,7 +54,7 @@
     <ClCompile Include="0310.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PEstruct.cpp">
+    <ClCompile Include="0311.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "PEpointer.h"
+
 #pragma warning(disable : 4996)
 
 
-//2、将内存中的文件重新加载到文件中
-//3、编写一个函数可以将内存地址转换到文件地址（RVAToFOA）
-
 //编写一个函数能自动将文件读到一块内存中，并且返回该块内存的指针
-char** ReadFileToMem(char fpath[]) {
+char* ReadFileToMem(char fpath[]) {
 	FILE* pfile;
 	long lSize;
 	char* fbuffer;
-	char** ret;
 
 	pfile = fopen(fpath, "rb");
 
@@ -25,9 +23,8 @@ char** ReadFileToMem(char fpath[]) {
 
 	if (fbuffer != NULL) {
 		fread(fbuffer, 1, lSize, pfile);
-		ret = &fbuffer;
 		fclose(pfile);
-		return ret;
+		return fbuffer;
 	}
 	else {
 		printf("Malloc defeat~");
@@ -50,156 +47,6 @@ char* NewBuffer(int SizeOfImage) {
 	}
 }
 
-//PEpointer函数
-
-int* ptre_lfanew(char* fbuffer) {
-	//先获取节表起始地址，即e_lfanew + 24 + SizeOfOptionalHeader
-	//e_lfanew
-	int* pe_lfanew;
-	pe_lfanew = (int*)(fbuffer + 60);
-	//int e_lfanew;
-	//e_lfanew = *pe_lfanew;
-	//printf("e_lfanew = %x\n", e_lfanew);
-
-	return pe_lfanew;
-}
-
-char* ptrPE(char* fbuffer) {
-	char* ret;
-
-	int e_lfanew;
-	e_lfanew = *ptre_lfanew(fbuffer);
-
-	printf("%x\n", e_lfanew);
-	ret = fbuffer + e_lfanew;
-
-	return ret;
-}
-
-char* ptrOptionPE(char* fbuffer) {
-	char* ret;
-
-	int e_lfanew;
-	e_lfanew = *ptre_lfanew(fbuffer);
-	///printf("%x\n", e_lfanew);
-	ret = fbuffer + e_lfanew + 24;
-
-	//printf("ptrOptionPE = %x\n", *(ret));
-
-	return ret;
-
-}
-
-int* ptrSizeOfImage(char* fbuffer) {
-	int* pSizeOfImage;
-	//首先获取image在内存中的大小，即扩展PE头里面偏移56个字节的SizeOfImage(4byte)
-	pSizeOfImage = (int*)(ptrOptionPE(fbuffer) + 56);
-	
-	//printf("function in ptrSizeOfImage()%x   %x\n", *((int*)( ptrOptionPE(fbuffer) + 56 )),1);
-	//printf("function in ptrSizeOfImage()%x   %x\n", *pSizeOfImage,1);
-
-	return pSizeOfImage;
-}
-
-int* ptrSizeOfHeaders(char* fbuffer) {
-	//先拷贝头文件+节表，即获取扩展PE头偏移60个字节的SizeOfHeaders(4 byte)里面的值
-	int* pSizeOfHeaders;
-	pSizeOfHeaders = (int*)(ptrOptionPE(fbuffer) + 60);
-	//int SizeOfHeaders;
-	//SizeOfHeaders = *pSizeOfHeaders;
-	//printf("SizeOfHeaders = %x\n", SizeOfHeaders);
-
-	return pSizeOfHeaders;
-}
-
-short* ptrSizeOfOptionalHeader(char* fbuffer) {
-	//PE标记起始地址，即e_lfanew
-	int e_lfanew;
-	e_lfanew = *ptre_lfanew(fbuffer);
-
-	//SizeOfOptionalHeader
-	short* pSizeOfOptionalHeader;
-	pSizeOfOptionalHeader = (short*)(fbuffer + e_lfanew + 20);
-	//short SizeOfOptionalHeader;
-	//SizeOfOptionalHeader = *pSizeOfOptionalHeader;
-	//printf("SizeOfOptionalHeader = %x\n", SizeOfOptionalHeader);
-
-	return pSizeOfOptionalHeader;
-}
-
-char* ptrSection(char* fbuffer) {
-	char* ret;
-
-	ret = fbuffer + *ptre_lfanew(fbuffer) + 24 + *ptrSizeOfOptionalHeader(fbuffer);
-
-	return ret;
-}
-
-int SectionOffset(char* fbuffer) {
-	int sectionOffset;
-
-	int e_lfanew;
-	e_lfanew = *ptre_lfanew(fbuffer);
-
-	short SizeOfOptionalHeader;
-	SizeOfOptionalHeader = *ptrSizeOfOptionalHeader(fbuffer);
-
-	//按照下述公式求得节表的起始地址
-	sectionOffset = e_lfanew + 24 + SizeOfOptionalHeader;
-	return sectionOffset;
-
-}
-
-int* ptrVirtualAddress(char* ptrSection){
-	int* pVirtualAddress;
-	pVirtualAddress = (int*)(ptrSection + 12);
-
-	return pVirtualAddress;
-}
-
-int* ptrSizeOfRawData(char* ptrSection){
-	int* pSizeOfRawData;
-	pSizeOfRawData = (int*)(ptrSection + 16);
-
-	return pSizeOfRawData;
-}
-
-int* ptrPointerToRawData(char* ptrSection) {
-	int* pPointerToRawData;
-	pPointerToRawData = (int*)(ptrSection + 20);
-
-	return pPointerToRawData;
-}
-
-int* ptrCharacteristics(char* ptrSection) {
-	int* pCharacteristics;
-	pCharacteristics = (int*)(ptrSection + 36);
-
-	return pCharacteristics;
-}
-
-short* ptrNumberOfSection(char* fbuffer) {
-	//根据PE头获取节的数量，即PE头偏移6个字节的NumberOfSection(4)
-	int e_lfanew;
-	e_lfanew = *ptre_lfanew(fbuffer);
-
-	short* pNumberOfSection;
-	pNumberOfSection = (short*)(fbuffer + e_lfanew + 6);
-	//short NumberOfSection;
-	//NumberOfSection = *pNumberOfSection;
-	//printf("NumberOfSection = %d\n", NumberOfSection);
-
-	return pNumberOfSection;
-}
-
-int* ptrImageBase(char* fbuffer) {
-	char* pOPE = ptrOptionPE(fbuffer);
-
-	int* pImageBase = (int*)(pOPE + 32);
-
-	return pImageBase;
-}
-
 //1、将文件加载到内存中，默认参数是将文件1:1复制到fbuffer内存的指针。
 char* FbufferToNbuffer(char* fbuffer, char* newbuffer) {
 	//头大小
@@ -218,7 +65,7 @@ char* FbufferToNbuffer(char* fbuffer, char* newbuffer) {
 	int ImageBase;
 	ImageBase = *ptrImageBase(fbuffer);
 
-	printf("头大小 = %x\t节数量 = %d\t节表起始地址偏移量 = %x\t映像基址 = %x", SizeOfHeaders, NumberOfSection, sectionoffset, ImageBase);
+	printf("头大小 = %x\t节数量 = %d\t节表起始地址偏移量 = %x\t映像基址 = %x\n", SizeOfHeaders, NumberOfSection, sectionoffset, ImageBase);
 
 
 	if (newbuffer != NULL && fbuffer != NULL) {
@@ -248,10 +95,77 @@ char* FbufferToNbuffer(char* fbuffer, char* newbuffer) {
 		return NULL;
 	}
 
-
-
 	return newbuffer;
 }
+
+//2、将内存中的文件重新写到某个文件中
+void NbufferToRbuffer(char* Newbuffer, char fpath[]) {
+	FILE* pfile;
+	pfile = fopen(fpath, "wb");
+
+	//获取文件头的大小
+	int SizeOfHeaders;
+	SizeOfHeaders = *ptrSizeOfHeaders(Newbuffer);
+	//向文件写入PE头
+	fwrite(Newbuffer, SizeOfHeaders, 1, pfile);
+
+	//节数量
+	short NumberOfSection;
+	NumberOfSection = *ptrNumberOfSection(Newbuffer);
+	//节表起始地址
+	char* pSection = ptrSection(Newbuffer);
+
+	int VirtualAddress;
+	int SizeOfRawData;
+	int PointerToRawData;
+	//循环遍历节的内存地址，然后开始向文件写入
+	for (int i = 0; i < NumberOfSection; i++) {
+		VirtualAddress = *ptrVirtualAddress(ptrSection(Newbuffer) + 40 * i);
+		SizeOfRawData = *ptrSizeOfRawData(ptrSection(Newbuffer) + 40 * i);
+		PointerToRawData = *ptrPointerToRawData(ptrSection(Newbuffer) + 40 * i);
+
+		fseek(pfile, PointerToRawData, SEEK_SET);
+		fwrite(Newbuffer + VirtualAddress, SizeOfRawData,1, pfile);
+	}
+}
+
+
+//3、RVA to FOA（将内存中的地址转换到文件中的地址）
+//是要返回一个指针地址？还是返回一个地址偏移？
+
+int RVA_TO_FOA(char* buffer,char* rva) {
+	int FOA;
+	// 用内存地址 - ImageBase = 虚拟内存地址（RVA）
+	int virtualaddress;
+	virtualaddress = rva - buffer;
+
+	//节表起始地址
+	char* pSection = ptrSection(buffer);
+
+	//节数量
+	short NumberOfSection;
+	NumberOfSection = *ptrNumberOfSection(buffer);
+
+	int VirtualAddress;
+	int SizeOfRawData;
+	int PointerToRawData;
+	//通过遍历节表信息，获取每一个节的虚拟地址范围（VirtualAddress ~ VirtualAddress + SizeRawData）
+	for (int i = 0; i < NumberOfSection; i++) {
+		VirtualAddress = *ptrVirtualAddress(ptrSection(buffer) + 40 * i);
+		SizeOfRawData = *ptrSizeOfRawData(ptrSection(buffer) + 40 * i);
+		PointerToRawData = *ptrPointerToRawData(ptrSection(buffer) + 40 * i);
+		//判断RVA是否在节范围里面
+		if (VirtualAddress < virtualaddress && virtualaddress < VirtualAddress + SizeOfRawData) {
+			//用RVA - VirtualAddress + PointerToData = FOA
+			FOA = virtualaddress - VirtualAddress + PointerToRawData;
+			//printf("%x", FOA);
+			return FOA;
+		}
+	}
+	printf("VirtualAddress Error");
+	return NULL;
+}
+
 
 int main() {
 	char* fbuffer;
@@ -259,17 +173,24 @@ int main() {
 
 	char fpath[] = "C:\\Windows\\System32\\notepad.exe";
 	//1:1拷贝文件到内存
-	fbuffer = *ReadFileToMem(fpath);
+	fbuffer = ReadFileToMem(fpath);
 
 	int SizeOfImage;
 	SizeOfImage = *ptrSizeOfImage(fbuffer);
 	printf("%x\n", SizeOfImage);
+
 	//按SizeOfImage重新申请一块内存
 	newbuffer = NewBuffer(SizeOfImage);
-
+	//模仿PE加载的过程，将文件拉伸后加载到一块内存中
 	FbufferToNbuffer(fbuffer, newbuffer);
 
+	//将在内存中拉伸后的文件，重新写入到磁盘中
+	char newpath[] = "C:\\Users\\84519\\Desktop\\newnotepad.exe";
+	NbufferToRbuffer(newbuffer, newpath);
 
+	int foa;
+	foa = RVA_TO_FOA(newbuffer, newbuffer + 0x37001);
+	printf("\n%x\n", foa);
 
 	free(newbuffer);
 	free(fbuffer);

@@ -66,6 +66,9 @@
     <ClCompile Include="0316.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="0317.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

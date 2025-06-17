@@ -41,6 +41,13 @@ char* ptrOptionPE(char* fbuffer) {
 
 }
 
+int* ptrAddressOfEntryPoint(char* fbuffer) {
+	int* pAddressOfEntryPoint;
+	pAddressOfEntryPoint = (int*)( ptrOptionPE(fbuffer) + 16 );
+
+	return pAddressOfEntryPoint;
+}
+
 int* ptrSizeOfImage(char* fbuffer) {
 	int* pSizeOfImage;
 	//首先获取image在内存中的大小，即扩展PE头里面偏移56个字节的SizeOfImage(4byte)
@@ -113,6 +120,13 @@ int* ptrSizeOfRawData(char* ptrSection) {
 	pSizeOfRawData = (int*)(ptrSection + 16);
 
 	return pSizeOfRawData;
+}
+
+int* ptrPhysicalAddress(char* ptrSection) {
+	int* pPhysicalAddress;
+	pPhysicalAddress = (int*)(ptrSection + 8);
+
+	return pPhysicalAddress;
 }
 
 int* ptrPointerToRawData(char* ptrSection) {

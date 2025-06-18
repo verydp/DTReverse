@@ -8,7 +8,7 @@
 
 #pragma warning(disable : 4996)
 //编写一个函数能自动将文件读到一块内存中，并且返回该块内存的指针
-char* ReadFileToMem(char fpath[]) {
+char* FileToBuffer(char fpath[]) {
 	FILE* pfile;
 	long lSize;
 	char* fbuffer;
@@ -144,7 +144,7 @@ void BufferToFile(char* fbuffer, char fpath[]) {
 	PointerToRawData = *ptrPointerToRawData(ptrSection(fbuffer) + 40 * (NumberOfSection - 1));
 	iSize = PointerToRawData + SizeOfRawData;
 	
-	//printf("%x\n", PointerToRawData);
+	printf("%x\n", PointerToRawData);
 	//向文件写入PE头
 	fwrite(fbuffer,iSize , 1, pfile);
 

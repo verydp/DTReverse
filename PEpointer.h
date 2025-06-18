@@ -22,7 +22,7 @@ char* ptrPE(char* fbuffer) {
 	e_lfanew = *ptre_lfanew(fbuffer);
 
 	//printf("%x\n", e_lfanew);
-	ret = fbuffer + e_lfanew;
+	ret = fbuffer + e_lfanew +4;
 
 	return ret;
 }
@@ -166,7 +166,7 @@ int* ptrImageBase(char* fbuffer) {
 }
 
 
-typedef struct _IMAGE_DOS_HEADER {
+typedef struct DOS_HEADER {
 	WORD e_magic;
 	WORD e_cblp;
 	WORD e_cp;
@@ -186,15 +186,15 @@ typedef struct _IMAGE_DOS_HEADER {
 	WORD e_oeminfo;
 	WORD e_res2[10];
 	LONG e_lfanew;
-} IMAGE_DOS_HEADER, * PIMAGE_DOS_HEADER;
+} DosHeader;
 
-typedef struct _IMAGE_NT_HEADERS {
+typedef struct NT_HEADERS {
 	DWORD Signature;							//0		PE头标记，通常值为4550
 	IMAGE_FILE_HEADER FileHeader;				//4		标准PE头 20字节。
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader32;	//24	扩展PE头 大小是可变的。
-}IMAGE_NT_HEADERS32, * PIMAGE_NT_HEADERS32;
+}NTHeader32;
 
-typedef struct _IMAGE_FILE_HEADER {
+typedef struct IMAGE_PE_HEADER {
 	WORD  Machine;								//0		运行在何种CPU上；0就是任意；014C是interl386及以后；8664则是x64也就是64位系统上；
 	WORD  NumberOfSections;						//2		保存节的数量。.data、.text
 	DWORD TimeDateStamp;						//4		由编译器填写的时间戳，和文件的创建、修改时间无关。
@@ -202,7 +202,7 @@ typedef struct _IMAGE_FILE_HEADER {
 	DWORD NumberOfSymbols;						//12	调试相关
 	WORD  SizeOfOptionalHeader;					//16	可保存扩展PE头的大小，32位默认是0xE0(224字节)，64位默认是0xF0(240字节)，大小可以自定义
 	WORD  Characteristics;						//18	这部分可根据其二进制位上是否置1，来判断该PE文件的相关属性。
-}IMAGE_FILE_HEADER, * PIMAGE_FILE_HEADER;
+}PEHeader;
 /*
 *--------------Characteristics------------------ *
 *0		文件不存在重定位信息 *
@@ -224,7 +224,7 @@ typedef struct _IMAGE_FILE_HEADER {
 *--------------Characteristics------------------ *
 */
 
-typedef struct _IMAGE_OPTIONAL_HEADER {
+typedef struct IMAGE_OPE_HEADER {
 	WORD  Magic;								//能准确识别该文件的位数，要是该成员位置上为0x10B则是32位程序，0x20B则是64位程序。
 	BYTE  MajorLinkerVersion;					//链接器主版本号。
 	BYTE  MinorLinkerVersion;					//链接器次版本号。
@@ -256,7 +256,27 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 	DWORD LoaderFlags;							//调试相关。
 	DWORD NumberOfRvaAndSizes;					//目录项目数。可知道该文件使用了多少个表。
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];//有多少张表，该数据的大小就是多少。
-}IMAGE_OPTIONAL_HEADER32, * PIMAGE_OPTINAL_HEADER32;
+}OPE32;
+
+/*
+char* DataDirectory[16];
+DataDirectory[0] = (char*)"导出表";
+DataDirectory[1] = (char*)"导入表";
+DataDirectory[2] = (char*)"资源表";
+DataDirectory[3] = (char*)"异常处理表";
+DataDirectory[4] = (char*)"安全表";
+DataDirectory[5] = (char*)"重定位表";
+DataDirectory[6] = (char*)"调试表";
+DataDirectory[7] = (char*)"版权";
+DataDirectory[8] = (char*)"指针目录";
+DataDirectory[9] = (char*)"TLS";
+DataDirectory[10] = (char*)"载入配置";
+DataDirectory[11] = (char*)"绑定输入目录";
+DataDirectory[12] = (char*)"导入地址表";
+DataDirectory[13] = (char*)"延迟载入";
+DataDirectory[14] = (char*)"COM信息";
+*/
+
 
 /*
 *--------------DllCharacteristics---------------*
@@ -279,7 +299,7 @@ typedef struct _IMAGE_OPTIONAL_HEADER {
 *--------------DllCharacteristics---------------*
 */
 #define IMAGE_SIZEOF_SHORT_NAME 8
-typedef struct _IMAGE_SECTION_HEADER {
+typedef struct SECTION_HEADER {
 	BYTE NAME[IMAGE_SIZEOF_SHORT_NAME];				//8字节,节表的名字，ascii字符，只截取8个字节
 	union {
 		DWORD PhysicalAddress;						//4字节，就是该节在没有对齐前的尺寸，可以不准确．
@@ -293,7 +313,7 @@ typedef struct _IMAGE_SECTION_HEADER {
 	WORD  NumberOfRelocations;						//4字节,调试相关
 	WORD  NumberOfLinenumbers;						//4字节,调试相关
 	DWORD Characteristics;							//4字节,节属性,查表判断其属性.
-}IMAGE_SECTION_HEADER, * PIMAGE_SECTION_HEADER;
+}SectionHeader;
 /*
 ************************节表属性***********************************************************
 * 5		IMAGE_SCN_CODE						//节中包含代码

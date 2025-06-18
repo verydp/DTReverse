@@ -1,11 +1,18 @@
 #include <Windows.h>
+#include <stdio.h>
+#include "PEpointer.h"
+#include "FileHandler.h"
+
+
 
 
 // 此处拿D盘的7z来做实验，下面尝试整理一下关于shellcode注入的相关内容
 // 首先通过自己编写一个函数
-int main() {
+
+void func() {
 	MessageBoxA(0, 0, 0, 0);
 }
+
 
 
 
@@ -69,8 +76,6 @@ int main() {
 // 00000110  0B 02 08 00 00 F4 05 00  00 DE 02 00 00 00 00 00  ................
 // 00000120  E0 03 06 00 00 10 00 00  00 00 40 00 00 00 00 00  ..........@.....
 
-
-
 /*
 *	 文件中				内存中
 |->* 0x5E8E0			0x5f4e0(原入口)
@@ -88,3 +93,85 @@ int main() {
 |<-* 0x5f7f8			0x603F8			jmp 偏移量						e9 e3 f0 ff ff
    * 0x5f7fd			0x603fd
 */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//尝试用代码添加一段shellcode到某个文件中
+char shellcode[29] = {
+	0x50, 0x48, 0xB8, 0x70, 0x2E, 0xE2, 0x2A, 0xFA, 0x7F, 0x00, 0x00, 0x45, 0x33, 0xC9, 0x45, 0x33,
+	0xC0, 0x33, 0xD2 ,0x33, 0xC9, 0xFF, 0xD0, 0x58, 0xE9, 0x00, 0x00, 0x00, 0x00
+};
+//写入一段shellcode
+//读出内存.text段的空闲区域，并确认shellcode是否超长。如果不超长，写入shellcode并返回shellcode的foa
+int ShellcodeInject(char* fbuffer, char shellcode[]) {
+	char* psection;
+	psection = ptrSection(fbuffer);
+	char* shellcodeFOA;
+
+	//printf("%x\n", *ptrPointerToRawData(psection));
+
+	if (*ptrSizeOfRawData(psection) - *ptrPhysicalAddress(psection) > 29) {
+		char* shellcodeBegin;
+		shellcodeBegin = fbuffer + *ptrPointerToRawData(psection) + *ptrPhysicalAddress(psection);
+		memcpy(shellcodeBegin, shellcode, 29);
+		printf("foa is %x\n", *ptrPointerToRawData(psection) + *ptrPhysicalAddress(psection));
+		//此时就得到了shellcode起始地址的文件偏移
+		shellcodeFOA = fbuffer + *ptrPointerToRawData(psection) + *ptrPhysicalAddress(psection);
+		
+	}
+	else {
+		printf("there's no space can inject shellcode");
+		return NULL;
+	}
+	//计算shellcode的E9跳转地址和程序指针的偏移量，并修改shellcode结束后的跳转地址。
+	//1、获取程序的入口地址
+	int* pAddressOfEntryPoint;
+	pAddressOfEntryPoint = ptrAddressOfEntryPoint(fbuffer);
+
+	char* sAddressOfEntryPointFOA;
+	sAddressOfEntryPointFOA = fbuffer + RVA_TO_FOA(fbuffer, *pAddressOfEntryPoint);
+	printf("AddressOfEntryPointFOA = %x\n", RVA_TO_FOA(fbuffer, *pAddressOfEntryPoint));
+
+	//2、计算shellcode跳转地址和程序入口的偏移量0x5E8E0 5F7B2  FFFF F12E
+	int shellcodeJMPFOA;
+	shellcodeJMPFOA = sAddressOfEntryPointFOA - (shellcodeFOA + 24 + 5);
+	//printf("%x\n", *(int*)AddressOfEntryPointFOA);
+	*((int*)(shellcodeFOA + 25)) = shellcodeJMPFOA;
+	printf("test%x\n", *(shellcodeFOA + 25));
+
+	//2、修改程序的入口地址
+	//将shellcodeFOA转换成RVA
+	*pAddressOfEntryPoint = FOA_TO_RVA(fbuffer, shellcodeFOA - fbuffer);
+	//printf("%x\n", *pAddressOfEntryPoint);
+
+	return 1;
+}
+
+
+
+
+
+int main() {
+	
+	//MessageBoxA(0, 0, 0, 0);固定地址为0x7ffa2ae22e70
+	//long MessageBoxA = 0x7ffa2ae22e70;
+
+	char fpath[] = "D:\\7-Zip\\7z.exe";
+	char* fbuffer;
+	fbuffer = ReadFileToMem(fpath);
+
+	char retpath[] = "C:\\Users\\84519\\Desktop\\7zshellcode.exe";
+	//获取shellcode的FOA
+	if (ShellcodeInject(fbuffer, shellcode)) {
+		BufferToFile(fbuffer, retpath);
+	}
+	else {
+		printf("shellcode inject defeat~");
+	}
+	
+	//MessageBoxA(0, 0, 0, 0);
+
+
+
+
+	return 0;
+}

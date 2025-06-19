@@ -98,7 +98,7 @@ void function3_30_2() {
 	char fpath[] = "D:\\7-Zip\\7zshellcode.exe";
 	char* fbuffer;
 	char* nbuffer;
-	SectionHeader* sectionheader;
+	SectionHeader* nsectionheader;
 	IMAGE_PE_HEADER* PEHeader;
 	IMAGE_OPE_HEADER* OPEHeader;
 
@@ -118,22 +118,38 @@ void function3_30_2() {
 		PEHeader->NumberOfSections = 1;
 		//printf("%x\n", PEHeader->NumberOfSections);
 
+
+
 		//将修改内存中的section0调整尺寸
-		sectionheader = (SectionHeader*)ptrSection(nbuffer);
+		nsectionheader = (SectionHeader*)ptrSection(nbuffer);
 		//printf("%x\n", sectionheader->PointerToRawData);
 		//将pointertorawdata调整为virtualaddress
-		sectionheader->PointerToRawData = sectionheader->VirtualAddress;
+		nsectionheader->PointerToRawData = nsectionheader->VirtualAddress;
 		//printf("%x\n", sectionheader->PointerToRawData);
 
+		//modify the power in 1st section, ensure the deleted section  also save their power 
+		int Characteristics;
+		Characteristics = 0;
+		SectionHeader* fsectionheader;
+		fsectionheader = (SectionHeader*)ptrSection(fbuffer);
+
+		for (int i = 0; i < 6; i++) {
+			//printf("Characteristics = %x\n", Characteristics);
+			Characteristics = Characteristics | (fsectionheader + i)->Characteristics;
+		}
+		
+		nsectionheader->Characteristics = Characteristics;
+		
+
 		//将节的大小设置为扩展后的大小sizeofimage - virtualaddress
-		printf("%x\n", sectionheader->SizeOfRawData);
-		sectionheader->SizeOfRawData = OPEHeader->SizeOfImage - sectionheader->VirtualAddress;
-		sectionheader->Misc.VirtualSize = OPEHeader->SizeOfImage - sectionheader->VirtualAddress;
-		printf("%x\n", sectionheader->SizeOfRawData);
+		printf("%x\n", nsectionheader->SizeOfRawData);
+		nsectionheader->SizeOfRawData = OPEHeader->SizeOfImage - nsectionheader->VirtualAddress;
+		nsectionheader->Misc.VirtualSize = OPEHeader->SizeOfImage - nsectionheader->VirtualAddress;
+		printf("%x\n", nsectionheader->SizeOfRawData);
 
 		//将section1-5的节表内容置0
 		//printf("%d\n", sizeof(SectionHeader));
-		memset(sectionheader + 1, 0, sizeof(SectionHeader) * 5);
+		memset(nsectionheader + 1, 0, sizeof(SectionHeader) * 5);
 
 		//将内存直接写入文件写入文件
 		char rpath[] = "D:\\7-Zip\\7zshellcodeMerge.exe";
@@ -197,9 +213,9 @@ void function3_20_4() {
 
 int main() {
 	//function3_20_1();
-	//function3_30_2();	//run defeat,can show the messagebox windows. but can not keep running
+	function3_30_2();	//run defeat,can show the messagebox windows. but can not keep running
 	//printf("%d\n", Align(7, 5));
-	function3_20_4();
+	//function3_20_4();
 
 
 }

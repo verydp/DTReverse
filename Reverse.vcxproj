@@ -208,12 +208,14 @@
     <ClCompile Include="0320.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="0323.cpp" />
+    <ClCompile Include="0323.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="0324.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PEpointer.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="FileHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Reverse.rc" />

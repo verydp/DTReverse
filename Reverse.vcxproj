@@ -214,9 +214,7 @@
     <ClCompile Include="0324.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="0325.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="0325.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PEpointer.h" />

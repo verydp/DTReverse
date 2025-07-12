@@ -61,7 +61,7 @@ void DisplayRelocatedData(char* fbuffer) {
 }
 
 int main() {
-	char fpath[] = "E:\\Github\\repo\\Demo\\StudyDLL\\x64\\Debug\\StudyDLL3.dll";
+	char fpath[] = "E:\\Github\\repo\\Demo\\StudyDLL\\x64\\Debug\\StudyDLL.dll";
 	char* fbuffer;
 	fbuffer = FileToBuffer(fpath);
 

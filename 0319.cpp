@@ -8,3 +8,4 @@
 //2、新增节表
 //3、添加节。修改节表的三个属性(pointertorawdata、sizeofrawdata、virtualaddress)
 //4、修改sizeofimage
+

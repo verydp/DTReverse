@@ -73,6 +73,7 @@ void ImportDirectory(char* fbuffer){
 				FunctionName = (IMAGE_IMPORT_BY_NAME*)(fbuffer + INThunkNameFOA);
 				
 				showstring(FunctionName->Name);
+				printf("\n");
 			}
 		}
 
@@ -116,6 +117,7 @@ void ImportDirectory(char* fbuffer){
 				FunctionName = (IMAGE_IMPORT_BY_NAME*)(fbuffer + IAThunkNameFOA);
 
 				showstring(FunctionName->Name);
+				printf("\n");
 			}
 		}
 

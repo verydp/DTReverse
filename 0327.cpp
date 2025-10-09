@@ -3,7 +3,6 @@
 #include <Windows.h>
 
 
-//D:\\IDA_Pro_7.5SP3\\IDA Pro 7.5 SP3(x86, x64, ARM, ARM64, PPC, PPC64, MIPS)\\ida.exe
 
 
 //遍历有多少张导入表

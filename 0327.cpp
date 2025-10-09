@@ -55,7 +55,7 @@ void ImportDirectory(char* fbuffer){
 			//printf("this is new Thunk~\n");
 
 			if (INThunk->u1.ForwarderString >> 63 == 1) {
-				//判断最高位是否为1 如果时 那么除去最高位的值就是函数的导出序号
+				//判断最高位是否为1,如果最高位为1 那么除去最高位的值就是函数的导出序号
 				printf("The Ordinal of Function is %x\n", INThunk->u1.ForwarderString - 0x8000000000000000);
 				//printf("INTFOA = %x\n", INTFOA);
 			}

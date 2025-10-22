@@ -105,6 +105,12 @@
     <ClCompile Include="0407.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="0408.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="0409.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

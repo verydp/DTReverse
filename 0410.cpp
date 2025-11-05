@@ -62,23 +62,68 @@ public:
 };
 
 //二分查找
-void half(int arr[], int length, int aim) {
-	int begin, end;
+int half(int arr[], int length, int aim) {
+
+	int begin, end, half;
 
 	begin = 0;
-	end = length;
+	end = length - 1;
 
-	if (aim > arr[begin] && aim < arr[length]) {
+	//[1 2 3 4 5 6 7 8 9]
+	//[1 2 3 4 5 6 7 8 9 10]
+
+	while ( begin <= end ) {
+
+		half = begin + (end - begin) / 2;
+
+		if (arr[half] == aim) {
+			return half;
+		}
+		else if (arr[half] > aim) {
+			end = half;
+		}
+		else {
+			begin = half;
+		}
+
 
 	}
+}
+
+int binary_search(int arr[], int size, int key) {
+	int left = 0;
+	int right = size - 1;
+
+	while (left <= right) {
+		int mid = left + (right - left) / 2; // 避免(left + right)溢出
+
+		if (arr[mid] == key) {
+			return mid; // 找到目标
+		}
+		else if (arr[mid] < key) {
+			left = mid + 1; // 去右半边找
+		}
+		else {
+			right = mid - 1; // 去左半边找
+		}
+	}
+	return -1; // 没找到
 }
 
 
 
 int main() {
+
 	array p1,p2(2,2);
 
 	p2++;
 
 	p2.print();
+
+	int arr[] = { 1,2,3,4,5,6,7,8,9 };
+
+	printf("%d\n", half(arr, 9, 9));
+
+	//printf("%d\n", binary_search(arr, 9, 1));
+
 }
